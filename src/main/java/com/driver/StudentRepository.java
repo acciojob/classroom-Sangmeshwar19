@@ -1,5 +1,6 @@
 package com.driver;
 
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -7,97 +8,115 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+@Component                  // To make Bean of StudentRepository class
 @Repository
 public class StudentRepository {
 
-    private HashMap<String, Student> studentHashMap;
-    private HashMap<String, Teacher> teacherHashMap;
-    private HashMap<String, List<String>> pairHashMap;
+    private HashMap<String, Student> studentMap;
+    private HashMap<String, Teacher> teacherMap;
+    private HashMap<String, List<String>> teacherStudentMap;
 
-    public StudentRepository()
-    {
-        this.studentHashMap = new HashMap<String, Student>();
-        this.teacherHashMap = new HashMap<String, Teacher>();
-        this.pairHashMap = new HashMap<String, List<String>>();
+    public StudentRepository() {
+        this.studentMap = new HashMap<String, Student>();
+        this.teacherMap = new HashMap<String, Teacher>();
+        this.teacherStudentMap = new HashMap<String, List<String>>();
     }
 
-    public void addStudentRepo(Student student)
-    {
-        studentHashMap.put(student.getName(),student);
+    // Adding Student Objects
+    public void addStudent(Student s) {
+        studentMap.put(s.getName(),s);
     }
 
-    public void addTeacherRepo(Teacher teacher)
-    {
-        teacherHashMap.put(teacher.getName(),teacher);
+    // Adding Teacher Objects
+    public void addTeacher(Teacher t) {
+        teacherMap.put(t.getName(),t);
     }
 
-    public void addStudentTeacherPairRepo(String student,String teacher)
-    {
-        if(studentHashMap.containsKey(student) && teacherHashMap.containsKey(teacher))
-        {
-            List<String> existingpair = new ArrayList<>();
-            if(pairHashMap.containsKey(teacher))
-                existingpair = pairHashMap.get(teacher);
-            existingpair.add(student);
-            pairHashMap.put(teacher,existingpair);
-        }
-    }
+    // Pair an Existing Student and Teacher
+    public void teacherStudentPair(String studentName, String teacherName) {
+        if (studentMap.containsKey(studentName) && teacherMap.containsKey(teacherName)) {
 
-    public Student getStudentByNameRepo(String student)
-    {
-        return studentHashMap.get(student);
-    }
-
-    public Teacher getTeacherByNameRepo(String director)
-    {
-        return teacherHashMap.get(director);
-    }
-
-    public List<String> getStudentsByTeacherNameRepo(String teacher)
-    {
-        List<String> studentsList = new ArrayList<>();
-        if(teacherHashMap.containsKey(teacher))
-            studentsList = pairHashMap.get(teacher);
-        return studentsList;
-    }
-
-    public List<String> getAllStudentsRepo()
-    {
-        return new ArrayList<>(studentHashMap.keySet());
-    }
-
-    public void deleteTeacherByNameRepo(String teacher)
-    {
-        List<String> std = new ArrayList<String>();
-        if(teacherHashMap.containsKey(teacher))
-        {
-            std = pairHashMap.get(teacher);
-            for(String student : std)
-            {
-                if(studentHashMap.containsKey(student))
-                    studentHashMap.remove(student);
+            List<String> listOfStudents = new ArrayList<>();
+            if (teacherStudentMap.containsKey(teacherName)) {
+                listOfStudents = teacherStudentMap.get(teacherName);
             }
-            pairHashMap.remove(teacher);
+
+            listOfStudents.add(studentName);
+
+            teacherStudentMap.put(teacherName,listOfStudents);
         }
-        if(teacherHashMap.containsKey(teacher))
-            teacherHashMap.remove(teacher);
     }
 
-    public void deleteAllTeachersRepo()
-    {
-        HashSet<String> set = new HashSet<String>();
-        for(String teacher: pairHashMap.keySet())
-        {
-            for(String student: pairHashMap.get(teacher))
-            {
-                set.add(student);
+    // Find Student by Student Name
+    public Student findStudent(String studentName) {
+        return studentMap.get(studentName);
+    }
+
+    // Find Teacher by Teacher Name
+    public Teacher findTeacher(String teacherName) {
+        return teacherMap.get(teacherName);
+    }
+
+    // Get List of Student by TeacherName
+    public List<String> getStudentByTeacher(String teacherName) {
+        List<String> listOfStudentNames = new ArrayList<>();
+        if (teacherStudentMap.containsKey(teacherName)) {
+            listOfStudentNames = teacherStudentMap.get(teacherName);
+        }
+
+        return listOfStudentNames;
+    }
+
+    // Get List of All Students added
+    public List<String> findAllStudentNames() {
+        List<String> allStudentNames = new ArrayList<>();
+
+        for (String name : studentMap.keySet())
+            allStudentNames.add(name);
+
+        return allStudentNames;
+    }
+
+    // Delete a Teacher and Student Pair
+    public void deletePair(String teacherName) {
+        List<String> studentNames = new ArrayList<>();
+        if (teacherStudentMap.containsKey(teacherName)) {
+            studentNames = teacherStudentMap.get(teacherName);
+
+            // Delete Students from Student Map
+            for (String name : studentNames)
+                if (studentMap.containsKey(name)) {
+                    studentMap.remove(name);
+                }
+
+            // Remove Teacher and Student pair from TeacherStudentMap
+            teacherStudentMap.remove(teacherName);
+        }
+
+        // Now Delete Teacher from teacherMap also
+        if (teacherMap.containsKey(teacherName)) {
+            teacherMap.remove(teacherName);
+        }
+    }
+
+    // Delete all Teachers and Students Records
+    public void deleteAllRecords() {
+
+        // Making a HashSet to Delete all records Because Deleting in HashMap Directly can occur error
+        HashSet<String> studentSet = new HashSet<>();
+
+        // add all Students names in Set to delete them
+        for (String teacherName : teacherStudentMap.keySet()) {
+            for (String studentName : teacherStudentMap.get(teacherName)) {
+                studentSet.add(studentName);
             }
         }
-        for(String student: set)
-        {
-            if(studentHashMap.containsKey(student))
-                studentHashMap.remove(student);
+
+        // Now Delete all records
+        for (String student : studentSet) {
+            if (studentMap.containsKey(student)) {
+                studentMap.remove(student);
+            }
         }
     }
-
 }

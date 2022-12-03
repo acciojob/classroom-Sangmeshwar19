@@ -1,8 +1,5 @@
 package com.driver;
 
-import org.springframework.stereotype.Component;
-
-@Component
 public class Teacher {
 
     private String name;
@@ -25,20 +22,20 @@ public class Teacher {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public int getNumberOfStudents() {
         return numberOfStudents;
     }
 
-    public void setNumberOfStudents(int numberOfStudents) {
-        this.numberOfStudents = numberOfStudents;
-    }
-
     public int getAge() {
         return age;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setNumberOfStudents(int numberOfStudents) {
+        this.numberOfStudents = numberOfStudents;
     }
 
     public void setAge(int age) {
